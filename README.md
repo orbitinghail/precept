@@ -1,4 +1,9 @@
-# Precept
+<h1 align="center">Precept</h1>
+<p align="center">
+  <a href="https://docs.rs/precept"><img alt="docs.rs" src="https://img.shields.io/docsrs/precept"></a>
+  &nbsp;
+  <a href="https://crates.io/crates/precept"><img alt="crates.io" src="https://img.shields.io/crates/v/precept.svg"></a>
+</p>
 
 This crate is designed to be used in testing and development to aid in finding interesting and erroneous states. It can be used in concert with a guidance system to provide high signal fuzz testing.
 
