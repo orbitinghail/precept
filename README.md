@@ -25,8 +25,8 @@ Licensed under either of
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/orbitinghail/graft/blob/main/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/orbitinghail/graft/blob/main/LICENSE-MIT
+[LICENSE-APACHE]: ./LICENSE-APACHE
+[LICENSE-MIT]: ./LICENSE-MIT
 
 ### Contribution
 
