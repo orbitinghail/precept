@@ -1,0 +1,36 @@
+[package]
+name = "precept"
+version = "0.1.0"
+edition = "2024"
+authors = ["orbitinghail <hello@orbitinghail.dev>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/orbitinghail/precept"
+homepage = "https://github.com/orbitinghail/precept"
+rust-version = "1.85"
+
+description = "A testing utility for fuzzing and fault injection to discover erroneous and interesting states."
+keywords = ["fuzzing", "testing", "fault-injection"]
+
+[lints.clippy]
+disallowed_methods = "deny"
+uninlined-format-args = "warn"
+doc-markdown = "warn"
+map-unwrap-or = "warn"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+rand = "0.9"
+rand_core = "0.9"
+linkme = "0.3"
+serde_json = "1.0"
+rustc_version_runtime = "0.3"
+
+libloading = { version = "0.8", optional = true }
+
+[features]
+# disable all runtime overhead of this crate
+disabled = []
+
+# enable the antithesis dispatcher
+antithesis = ["libloading"]
