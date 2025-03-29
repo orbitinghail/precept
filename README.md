@@ -3,6 +3,8 @@
   <a href="https://docs.rs/precept"><img alt="docs.rs" src="https://img.shields.io/docsrs/precept"></a>
   &nbsp;
   <a href="https://crates.io/crates/precept"><img alt="crates.io" src="https://img.shields.io/crates/v/precept.svg"></a>
+  &nbsp;
+  <a href="https://github.com/orbitinghail/precept/actions"><img alt="Build Status" src="https://github.com/orbitinghail/precept/actions/workflows/rust.yml/badge.svg"></a>
 </p>
 
 This crate is designed to be used in testing and development to aid in finding interesting and erroneous states. It can be used in concert with a guidance system to provide high signal fuzz testing.
