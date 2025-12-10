@@ -64,13 +64,23 @@ pub fn dispatcher() -> &'static dyn Dispatch {
 }
 
 /// Generate a random u64 using the dispatcher
-#[inline]
 pub fn get_random() -> u64 {
     dispatcher().random()
 }
 
+/// Choose a random value from a slice of options using the dispatcher
+pub fn choose<T>(options: &[T]) -> Option<&T> {
+    match options {
+        [] => None,
+        [x] => Some(x),
+        _ => {
+            let idx: usize = (get_random() as usize) % options.len();
+            Some(&options[idx])
+        }
+    }
+}
+
 /// Emit an event using the dispatcher
-#[inline]
 pub fn emit(event: Event) {
     dispatcher().emit(event);
 }

@@ -48,7 +48,7 @@ impl Expectation {
 pub struct CatalogEntry {
     // the type of this expectation
     expectation: Expectation,
-    // the name of the entry, also serves as it's id
+    // the name of the entry, also serves as its id
     property: &'static str,
     // panic::Location::caller()
     location: &'static Location<'static>,
@@ -64,7 +64,6 @@ pub struct CatalogEntry {
 }
 
 impl CatalogEntry {
-    #[inline]
     pub const fn new(
         expectation: Expectation,
         property: &'static str,
@@ -120,12 +119,10 @@ impl CatalogEntry {
         self.function
     }
 
-    #[inline]
     pub fn pass_count(&self) -> usize {
         self.pass_count.load(atomic::Ordering::Acquire)
     }
 
-    #[inline]
     pub fn fail_count(&self) -> usize {
         self.fail_count.load(atomic::Ordering::Acquire)
     }
