@@ -50,8 +50,8 @@ impl FaultEntry {
         if self.enabled.load(Ordering::Acquire) {
             if self
                 .pending_trips
-                .fetch_update(Ordering::Release, Ordering::Acquire, |count| {
-                    count.checked_sub(1)
+                .fetch_update(Ordering::AcqRel, Ordering::Acquire, |count| {
+                    if count > 0 { Some(count - 1) } else { None }
                 })
                 .is_ok()
             {
