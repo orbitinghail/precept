@@ -9,11 +9,11 @@ use std::{
 use crate::dispatch::{self, Event, dispatcher};
 
 /// Catalog of all antithesis assertions provided
-#[cfg(not(feature = "disabled"))]
+#[cfg(feature = "enabled")]
 #[linkme::distributed_slice]
 pub static PRECEPT_CATALOG: [CatalogEntry];
 
-#[cfg(feature = "disabled")]
+#[cfg(not(feature = "enabled"))]
 pub static PRECEPT_CATALOG: [&CatalogEntry; 0] = [];
 
 pub fn init_catalog() {

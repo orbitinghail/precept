@@ -6,11 +6,11 @@ use std::{
 use crate::ENABLED;
 
 /// Catalog of all Precept faults
-#[cfg(not(feature = "disabled"))]
+#[cfg(feature = "enabled")]
 #[linkme::distributed_slice]
 pub static FAULT_CATALOG: [FaultEntry];
 
-#[cfg(feature = "disabled")]
+#[cfg(not(feature = "enabled"))]
 pub static FAULT_CATALOG: [&FaultEntry; 0] = [];
 
 pub(crate) fn init_faults() {
@@ -98,10 +98,5 @@ pub fn disable_all() {
 }
 
 pub fn get_fault_by_name(name: &str) -> Option<&'static FaultEntry> {
-    for entry in FAULT_CATALOG {
-        if entry.name == name {
-            return Some(entry);
-        }
-    }
-    None
+    FAULT_CATALOG.into_iter().find(|&entry| entry.name == name)
 }

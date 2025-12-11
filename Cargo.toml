@@ -29,8 +29,9 @@ rustc_version_runtime = "0.3"
 libloading = { version = "0.9", optional = true }
 
 [features]
-# disable all runtime overhead of this crate
-disabled = []
+# enable all features in this crate
+# if this feature is not specified, this crate has 0 runtime overhead
+enabled = []
 
 # enable the antithesis dispatcher
 antithesis = ["libloading"]

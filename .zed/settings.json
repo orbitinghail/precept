@@ -7,7 +7,7 @@
     "rust-analyzer": {
       "initialization_options": {
         "cargo": {
-          "features": ["antithesis"]
+          "features": ["antithesis", "enabled"]
         }
       }
     }

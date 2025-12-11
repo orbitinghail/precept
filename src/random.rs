@@ -1,19 +1,19 @@
 use rand::RngCore;
 
-#[cfg(feature = "disabled")]
+#[cfg(not(feature = "enabled"))]
 pub fn rng() -> impl RngCore {
     rand::rng()
 }
 
-#[cfg(not(feature = "disabled"))]
+#[cfg(feature = "enabled")]
 pub fn rng() -> impl RngCore {
     DispatchRng
 }
 
-#[cfg(not(feature = "disabled"))]
+#[cfg(feature = "enabled")]
 struct DispatchRng;
 
-#[cfg(not(feature = "disabled"))]
+#[cfg(feature = "enabled")]
 impl RngCore for DispatchRng {
     fn next_u32(&mut self) -> u32 {
         self.next_u64() as u32
