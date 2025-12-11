@@ -2,6 +2,11 @@
 
 All notable changes will be documented in this file.
 
+## 0.2.0 - 2025-12-10
+
+- Added new fault system
+- Better doc comments
+
 ## 0.1.0 - 2025-03-29
 
 - Initial release
