@@ -133,8 +133,8 @@ macro_rules! define_fault {
         use $crate::fault::FaultEntry;
         #[$crate::deps::linkme::distributed_slice($crate::fault::FAULT_CATALOG)]
         #[linkme(crate = $crate::deps::linkme)]
-        static ENTRY: FaultEntry = FaultEntry::new($id);
-        &ENTRY
+        static FAULT: FaultEntry = FaultEntry::new($id);
+        &FAULT
     }};
 }
 
