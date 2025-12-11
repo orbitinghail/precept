@@ -16,7 +16,7 @@ pub static PRECEPT_CATALOG: [CatalogEntry];
 #[cfg(not(feature = "enabled"))]
 pub static PRECEPT_CATALOG: [&CatalogEntry; 0] = [];
 
-pub fn init_catalog() {
+pub(crate) fn init_catalog() {
     let dispatch = dispatcher();
     for entry in PRECEPT_CATALOG {
         dispatch.emit(Event::RegisterEntry(entry));
