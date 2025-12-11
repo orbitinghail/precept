@@ -1,8 +1,7 @@
 use std::{
     collections::HashSet,
-    fmt::{Debug, Display},
-    panic::panic_any,
-    sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering},
+    fmt::Debug,
+    sync::atomic::{AtomicBool, AtomicU32, Ordering},
 };
 
 use crate::ENABLED;
@@ -55,20 +54,18 @@ impl FaultEntry {
 
     /// Returns true when the fault should trip
     pub fn trip(&self) -> bool {
-        if self.enabled.load(Ordering::Acquire) {
-            if self
-                .pending_trips
-                .fetch_update(Ordering::AcqRel, Ordering::Acquire, |count| {
-                    if count > 0 { Some(count - 1) } else { None }
-                })
-                .is_ok()
-            {
-                // forced trigger
-                true
-            } else {
-                let should_fault = crate::dispatch::choose(&[true, false]);
-                should_fault.is_some_and(|&t| t)
-            }
+        if self
+            .pending_trips
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |count| {
+                if count > 0 { Some(count - 1) } else { None }
+            })
+            .is_ok()
+        {
+            // forced trigger
+            true
+        } else if self.enabled.load(Ordering::Acquire) {
+            let should_fault = crate::dispatch::choose(&[true, false]);
+            should_fault.is_some_and(|&t| t)
         } else {
             false
         }
@@ -121,49 +118,4 @@ pub fn disable_all() {
 /// Returns `None` if no fault with the given name exists.
 pub fn get_fault_by_name(name: &str) -> Option<&'static FaultEntry> {
     FAULT_CATALOG.into_iter().find(|&entry| entry.name == name)
-}
-
-pub enum FaultPowerlossMode {
-    Exit { code: i32 },
-    Panic,
-}
-
-/// The panic that is raised by fault_powerloss when the current
-/// FaultPowerlossMode is `Panic`
-#[derive(Debug)]
-pub struct FaultPowerlossPanic;
-
-impl Display for FaultPowerlossPanic {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(self, f)
-    }
-}
-
-static FAULT_POWERLOSS_MODE: AtomicU64 = AtomicU64::new(0);
-
-pub fn set_fault_powerloss_mode(mode: FaultPowerlossMode) {
-    // encode the discriminant into the high 32 bits and the exit code into the
-    // low 32 bits
-    let encoded = match mode {
-        FaultPowerlossMode::Exit { code } => code as u32 as u64,
-        FaultPowerlossMode::Panic => 1u64 << 32,
-    };
-    FAULT_POWERLOSS_MODE.store(encoded, Ordering::Release);
-}
-
-pub fn fault_powerloss_mode() -> FaultPowerlossMode {
-    let encoded = FAULT_POWERLOSS_MODE.load(Ordering::Acquire);
-    let discriminant = (encoded >> 32) as u32;
-    match discriminant {
-        0 => FaultPowerlossMode::Exit { code: encoded as u32 as i32 },
-        1 => FaultPowerlossMode::Panic,
-        _ => unreachable!("unexpected FaultPowerlossMode discriminant"),
-    }
-}
-
-pub fn fault_powerloss() -> ! {
-    match fault_powerloss_mode() {
-        FaultPowerlossMode::Exit { code } => std::process::exit(code),
-        FaultPowerlossMode::Panic => panic_any(FaultPowerlossPanic),
-    }
 }

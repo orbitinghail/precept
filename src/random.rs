@@ -1,10 +1,20 @@
 use rand::RngCore;
 
+/// Returns a random number generator that uses the dispatcher for randomness.
+///
+/// When precept is enabled, this returns an RNG that sources randomness from
+/// the dispatcher, enabling deterministic replay. When disabled, it returns
+/// the standard random generator.
 #[cfg(not(feature = "enabled"))]
 pub fn rng() -> impl RngCore {
     rand::rng()
 }
 
+/// Returns a random number generator that uses the dispatcher for randomness.
+///
+/// When precept is enabled, this returns an RNG that sources randomness from
+/// the dispatcher, enabling deterministic replay. When disabled, it returns
+/// the standard random generator.
 #[cfg(feature = "enabled")]
 pub fn rng() -> impl RngCore {
     DispatchRng

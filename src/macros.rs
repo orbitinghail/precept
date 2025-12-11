@@ -44,6 +44,7 @@ macro_rules! define_and_emit_entry {
     }};
 }
 
+/// Emits a custom event with the given name and details.
 #[macro_export]
 macro_rules! emit_event {
     ($name:expr, $($details:tt)+) => {
@@ -56,6 +57,7 @@ macro_rules! emit_event {
     };
 }
 
+/// Signals that application setup is complete, optionally with details.
 #[macro_export]
 macro_rules! setup_complete {
     () => {
@@ -71,6 +73,7 @@ macro_rules! setup_complete {
     };
 }
 
+/// Asserts that a condition is always true when this point is reached.
 #[macro_export]
 macro_rules! expect_always {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -82,6 +85,7 @@ macro_rules! expect_always {
     };
 }
 
+/// Asserts that a condition is always true if this point is reached, but the point may never be reached.
 #[macro_export]
 macro_rules! expect_always_or_unreachable {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -93,6 +97,7 @@ macro_rules! expect_always_or_unreachable {
     };
 }
 
+/// Asserts that a condition is true at least once during testing.
 #[macro_export]
 macro_rules! expect_sometimes {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -104,6 +109,7 @@ macro_rules! expect_sometimes {
     };
 }
 
+/// Asserts that this code path is reached at least once during testing.
 #[macro_export]
 macro_rules! expect_reachable {
     ($property:expr$(, $($details:tt)+)?) => {
@@ -115,6 +121,7 @@ macro_rules! expect_reachable {
     };
 }
 
+/// Asserts that this code path should never be reached during testing.
 #[macro_export]
 macro_rules! expect_unreachable {
     ($property:expr$(, $($details:tt)+)?) => {
@@ -138,9 +145,9 @@ macro_rules! define_fault {
     }};
 }
 
-/// Register a fault point. This fault will trigger when it is enabled.
-/// p should be in the range [0.0, 1.0]
-/// fault is a block that will be executed when the fault triggers
+/// Register a fault point. This fault will trigger 50% of the time when it is
+/// enabled or when it is explicitely scheduled to trigger via
+/// `FaultEntry::set_pending`.
 ///
 /// # Example
 /// ```
