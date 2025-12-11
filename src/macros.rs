@@ -233,9 +233,9 @@ mod tests {
     fn test_fault() {
         fault::init_faults();
 
-        let fault = crate::fault::get_fault_by_name("never").unwrap();
+        let fault = crate::fault::get_fault_by_name("disabled").unwrap();
         fault.disable();
-        sometimes_fault!("never", unreachable!("never faults"));
+        sometimes_fault!("disabled", unreachable!("disabled faults"));
 
         let fault = crate::fault::get_fault_by_name("forced").unwrap();
         fault.set_pending(1);
@@ -249,7 +249,7 @@ mod tests {
         fault.set_pending(1);
         let mut foo = false;
         sometimes_fault!("disabled_forced", foo = true);
-        assert!(!foo);
-        assert_eq!(fault.count_pending(), 1);
+        assert!(foo);
+        assert_eq!(fault.count_pending(), 0);
     }
 }
