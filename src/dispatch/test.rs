@@ -40,7 +40,6 @@ impl Dispatch for TestDispatch {
         }
     }
 
-    #[inline]
     fn random(&self) -> u64 {
         rand::random()
     }

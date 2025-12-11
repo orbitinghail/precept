@@ -44,6 +44,7 @@ macro_rules! define_and_emit_entry {
     }};
 }
 
+/// Emits a custom event with the given name and details.
 #[macro_export]
 macro_rules! emit_event {
     ($name:expr, $($details:tt)+) => {
@@ -56,6 +57,7 @@ macro_rules! emit_event {
     };
 }
 
+/// Signals that application setup is complete, optionally with details.
 #[macro_export]
 macro_rules! setup_complete {
     () => {
@@ -71,6 +73,7 @@ macro_rules! setup_complete {
     };
 }
 
+/// Asserts that a condition is always true when this point is reached.
 #[macro_export]
 macro_rules! expect_always {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -82,6 +85,7 @@ macro_rules! expect_always {
     };
 }
 
+/// Asserts that a condition is always true if this point is reached, but the point may never be reached.
 #[macro_export]
 macro_rules! expect_always_or_unreachable {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -93,6 +97,7 @@ macro_rules! expect_always_or_unreachable {
     };
 }
 
+/// Asserts that a condition is true at least once during testing.
 #[macro_export]
 macro_rules! expect_sometimes {
     ($condition:expr, $property:expr$(, $($details:tt)+)?) => {
@@ -104,6 +109,7 @@ macro_rules! expect_sometimes {
     };
 }
 
+/// Asserts that this code path is reached at least once during testing.
 #[macro_export]
 macro_rules! expect_reachable {
     ($property:expr$(, $($details:tt)+)?) => {
@@ -115,6 +121,7 @@ macro_rules! expect_reachable {
     };
 }
 
+/// Asserts that this code path should never be reached during testing.
 #[macro_export]
 macro_rules! expect_unreachable {
     ($property:expr$(, $($details:tt)+)?) => {
@@ -126,46 +133,54 @@ macro_rules! expect_unreachable {
     };
 }
 
-/// emit a fault with a probability p to the dispatcher
-/// p should be in the range [0.0, 1.0]
-/// fault is a block that will be executed when the fault triggers
+#[doc(hidden)]
+#[macro_export]
+macro_rules! define_fault {
+    ($id:expr) => {{
+        use $crate::fault::FaultEntry;
+        #[$crate::deps::linkme::distributed_slice($crate::fault::FAULT_CATALOG)]
+        #[linkme(crate = $crate::deps::linkme)]
+        static FAULT: FaultEntry = FaultEntry::new($id);
+        &FAULT
+    }};
+}
+
+/// Register a fault point. This fault will trigger 50% of the time when it is
+/// enabled or when it is explicitely scheduled to trigger via
+/// `FaultEntry::set_pending`.
 ///
 /// # Example
 /// ```
-/// use precept::maybe_fault;
-/// maybe_fault!(
-///     0.5,
-///     "triggers 50% of the time",
+/// precept::sometimes_fault!(
+///     "triggers some of the time",
 ///     println!("this will run when the fault triggers"),
 ///     { "optional": "details" }
 /// );
 /// ```
 #[macro_export]
-macro_rules! maybe_fault {
-    ($p:expr, $name:expr, $fault:expr) => {
-        $crate::maybe_fault!($p, $name, $fault, null);
+macro_rules! sometimes_fault {
+    ($name:expr, $fault:expr) => {
+        $crate::sometimes_fault!($name, $fault, null);
     };
 
-    ($p:expr, $name:expr, $fault:expr, $($details:tt)+) => {{
-        if $crate::faults_enabled() {
-            static THRESHOLD: u64 = (u64::MAX as f64 * $p) as u64;
-            let should_fault = $crate::dispatch::get_random() < THRESHOLD;
-            if should_fault {
-                $crate::expect_reachable!(
-                    concat!("fault is reachable: ", $name),
-                    $($details)+
-                );
-                $crate::emit_event!("precept_fault", { "name": $name, "details": $($details)+ });
-                $fault
-            }
+    ($name:expr, $fault:expr, $($details:tt)+) => {{
+        let fault = $crate::define_fault!($name);
+        let tripped = fault.trip();
+        $crate::expect_sometimes!(
+            tripped,
+            concat!("precept fault: ", $name),
+            $($details)+
+        );
+        if tripped {
+            $crate::emit_event!("precept_fault", { "name": $name, "details": $($details)+ });
+            $fault
         }
     }};
 }
 
 #[cfg(test)]
 mod tests {
-
-    use crate::{catalog::Expectation, disable_faults};
+    use crate::{catalog::Expectation, fault};
 
     #[test]
     fn test_entry_gen() {
@@ -216,22 +231,25 @@ mod tests {
 
     #[test]
     fn test_fault() {
-        maybe_fault!(0.0, "this should never fault", unreachable!("never faults"));
+        fault::init_faults();
 
-        let mut faults = false;
-        maybe_fault!(1.0, "this should always fault", faults = true);
-        assert!(faults);
+        let fault = crate::fault::get_fault_by_name("disabled").unwrap();
+        fault.disable();
+        sometimes_fault!("disabled", unreachable!("disabled faults"));
 
-        maybe_fault!(0.5, "this should sometimes fault", ());
+        let fault = crate::fault::get_fault_by_name("forced").unwrap();
+        fault.set_pending(1);
+        let mut foo = false;
+        sometimes_fault!("forced", foo = true);
+        assert!(foo);
+        assert_eq!(fault.count_pending(), 0);
 
-        // supports details
-        maybe_fault!(0.5, "this should sometimes fault", (), { "key": 123 });
-
-        disable_faults();
-        maybe_fault!(
-            1.0,
-            "this should not fault because disabled",
-            unreachable!("never faults")
-        );
+        let fault = crate::fault::get_fault_by_name("disabled_forced").unwrap();
+        fault.disable();
+        fault.set_pending(1);
+        let mut foo = false;
+        sometimes_fault!("disabled_forced", foo = true);
+        assert!(foo);
+        assert_eq!(fault.count_pending(), 0);
     }
 }

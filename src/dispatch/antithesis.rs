@@ -73,7 +73,6 @@ impl Dispatch for AntithesisDispatch {
         }
     }
 
-    #[inline]
     fn random(&self) -> u64 {
         match self {
             Self::Voidstar(handler) => handler.random(),
@@ -162,7 +161,7 @@ pub struct LibVoidstarHandler {
 impl LibVoidstarHandler {
     fn try_load() -> Result<Self, libloading::Error> {
         // SAFETY:
-        // - The `libvoidstar` library must not have initalization procedures.
+        // - The `libvoidstar` library must not have initialization procedures.
         // - The `libvoidstar` library must export symbols with the expected type signatures.
         unsafe {
             let lib = Library::new("/usr/lib/libvoidstar.so")?;
@@ -189,7 +188,6 @@ impl LibVoidstarHandler {
         }
     }
 
-    #[inline]
     fn random(&self) -> u64 {
         (self.fuzz_get_random)()
     }
@@ -230,7 +228,6 @@ impl FileHandler {
         Ok(())
     }
 
-    #[inline]
     fn random(&self) -> u64 {
         rand::random()
     }
