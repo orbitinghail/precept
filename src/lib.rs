@@ -1,6 +1,10 @@
 pub mod dispatch;
 pub mod fault;
+pub mod ghost;
 pub mod random;
+
+#[doc(inline)]
+pub use crate::ghost::GhostState;
 
 #[doc(hidden)]
 pub mod catalog;
