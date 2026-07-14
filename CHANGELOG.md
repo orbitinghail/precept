@@ -2,6 +2,10 @@
 
 All notable changes will be documented in this file.
 
+## 0.4.1 - 2026-07-13
+
+- Expectation macros (`expect_*!`, `observe!`) now type- and borrow-check their arguments even when the `enabled` feature is off, so errors surface in every configuration and expectation-only temporaries no longer trigger `unused_variables`/`unused_assignments` warnings in downstream crates. Arguments are still never evaluated at runtime when disabled, preserving the crate's zero runtime overhead.
+
 ## 0.4.0 - 2026-07-13
 
 - Added `observe!`, a property block that may call any precept API and may optionally borrow one or more `GhostState`s; its `Fn` bound makes it easier to avoid unintentionally mutating the system under test.
